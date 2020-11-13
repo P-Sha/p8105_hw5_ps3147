@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(rvest)
+library(ggplot2)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -132,13 +133,22 @@ lda_df =
      names_prefix = "week_",
      values_to = "obs"
    )
+
+lda_df
 ```
 
 Spaghetti plot
 
 ```{r}
-
+lda_df %>% 
+    ggplot(
+      aes(x = week, y = obs, color = arm, group = interaction(arm, id)),
+      alpha = 0.3,) +
+    geom_line() +
+    ggtitle("Observations over time")
 ```
+
+The graph indicates that on an average the values of observations were higher for subjects in the experimental group versus when in the control group. Also, the average trend in the experimental group showed increasing observation-values over the 8 weeks time period, versus more or less consistent values in the control arm.
 
 
 
