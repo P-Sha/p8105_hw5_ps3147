@@ -111,11 +111,34 @@ path_df =
     path = str_c("lda_data/", path),
     data = map(.x = path, ~read_csv(.x))
     )
-
-read_csv(path_df$path[[1]])
-
 ```
 
+tidy the data.
+
+```{r}
+lda_df = 
+   path_df %>% 
+  mutate(path = str_replace(path, "\\lda_data/", "")) %>% 
+  separate(path, into = c("arm", "id"), sep = "\\_") %>% 
+  mutate(
+    id = str_replace(id, "\\.csv", ""),
+    arm = replace(arm, arm == "con", "control")
+  ) %>% 
+  select(id, everything()) %>% 
+  unnest(data) %>% 
+   pivot_longer(
+     week_1:week_8,
+     names_to = "week",
+     names_prefix = "week_",
+     values_to = "obs"
+   )
+```
+
+Spaghetti plot
+
+```{r}
+
+```
 
 
 
