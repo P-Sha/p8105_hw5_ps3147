@@ -151,5 +151,61 @@ lda_df %>%
 The graph indicates that on an average the values of observations were higher for subjects in the experimental group versus when in the control group. Also, the average trend in the experimental group showed increasing observation-values over the 8 weeks time period, versus more or less consistent values in the control arm.
 
 
+## Problem 3
+
+To explore power in a simple linear regression, using simulation.
+
+Setting up the t-test function
+
+```{r}
+sim_mean_p = function(samp_size = 30, mu, sigma = 5) {
+  
+sim_data = 
+  tibble(
+      obs = rnorm(n = samp_size, mean = mu, sd = sigma)
+  ) 
+
+sim_result = 
+  nest(sim_data) %>% 
+  mutate(
+  t_test = map(.x = data, ~t.test(x = .x, mu = 0, alternative = 'two.sided', paired = FALSE, conf.level = 0.95)),
+  tidy_test = map(.x = t_test, ~broom::tidy(.x))
+  ) 
+
+return(sim_result)
+
+}
+```
+
+Simulating data 5,000 times for each mean, using function
+
+```{r}
+simulation_results =   
+  tibble(
+    true_mean = c(0, 1, 2, 3, 4, 5, 6)
+  ) %>% 
+  mutate(
+    output_lists = map(.x = true_mean, ~ rerun(50,sim_mean_p(mu = .x))),  
+     estimate_df = map(output_lists, bind_rows)
+  ) %>% 
+  select(-output_lists) %>%
+  unnest(estimate_df)  
+  
+simulation_results =
+simulation_results %>% 
+  unnest(tidy_test)
+
+simulation_results =
+ simulation_results %>%  
+  mutate(
+    mu_hat = estimate,
+    p_value = p.value
+  ) %>% 
+  select(true_mean, mu_hat, p_value)
+
+head(simulation_results)
+```
+
+
 
 
